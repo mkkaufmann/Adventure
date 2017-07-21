@@ -210,7 +210,7 @@ namespace ConsoleApp2
         {
             Leaderboard leaderboard = new Leaderboard();
 
-            Console.Write(leaderboard.Read());
+            Console.Write(leaderboard.Display());
 
             reco.RecognizeCompleted += new EventHandler<System.Speech.Recognition.RecognizeCompletedEventArgs>(restartRecognition);
             reco.SpeechRecognized += new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(handleRecognition);
@@ -273,7 +273,20 @@ namespace ConsoleApp2
 
             Console.WriteLine("");
             type("What is your name? (Type this out)");
-            player.name = Console.ReadLine();
+            do
+            {
+                player.name = Console.ReadLine();
+                if (player.name == null || player.name == "")
+                {
+                    Console.WriteLine("Please write a name.");
+                } else if (player.name.Contains(",") || player.name.Contains("`"))
+                {
+                    Console.WriteLine("The characters '`' and ',' are reserved. Please try a different name.");
+                } else if (player.name.Length > 15)
+                {
+                    Console.WriteLine("Please keep your name to 15 characters or less.");
+                }
+            } while (player.name == null || player.name.Contains(",") || player.name.Contains("`") || player.name == "" || player.name.Length > 15);
 
             player.currentRoom.enter();
 
