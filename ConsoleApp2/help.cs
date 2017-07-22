@@ -7,6 +7,7 @@ public class help : item
 	}
     public override void activate(player player)
     {
+        Console.WriteLine("");
         typer typer = new typer("This will display help later.");
         typer.start();
     }

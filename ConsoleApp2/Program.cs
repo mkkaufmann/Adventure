@@ -6,10 +6,10 @@
  * TODO: add cancel (check)
  * correct processing (check)
  * add comments (check) come back to this
- * add item support
+ * add item support (check)
  * add enemy support
- * add points
- * add high score board (low priority)
+ * add points (check)
+ * add high score board (check)
  * organize into multiple files (check)
  * add text typing out (check)
  * add saving support (low priority)
@@ -49,7 +49,7 @@ namespace ConsoleApp2
         static word south = new word("south", nextWordsParam: new word[] { submit, cancel });
         static word east = new word("east", nextWordsParam: new word[] { submit, cancel });
         static word west = new word("west", nextWordsParam: new word[] { submit, cancel });
-        static word go = new word("go", new string[] { "head", "skedaddle", "run", "walk", "north"},new word[] {north,south,east,west});
+        static word go = new word("go", new string[] { "head", "skedaddle", "run", "walk"},new word[] {north,south,east,west});
         static word activate = new word("activate", new string[] { "use", "utilize"});
         static word drop = new word("drop", new string[] { "leave", "dispel", "discard" });
         static word grab = new word("grab", new string[] { "pick up", "seize", "snatch","get","acquire","obtain","collect","attain"});
@@ -160,9 +160,7 @@ namespace ConsoleApp2
                     commandPart = splitCommand[2];
                     if (submit.checkForEquiv(commandPart))
                     {
-                        player.inventory.Add(item);
-                        Console.WriteLine("");
-                        type("You picked up: " + item.name + ".");
+                        item.PickUp(player);
                     }
                 }
             }
@@ -175,7 +173,6 @@ namespace ConsoleApp2
                     commandPart = splitCommand[2];
                     if (submit.checkForEquiv(commandPart))
                     {
-                        Console.WriteLine("");
                         item.activate(player);
                     }
                 }
@@ -189,10 +186,7 @@ namespace ConsoleApp2
                     commandPart = splitCommand[2];
                     if (submit.checkForEquiv(commandPart))
                     {
-                        Console.WriteLine("");
-                        player.inventory.Remove(item);
-                        player.currentRoom.items.Add(item);
-                        item.activate(player);
+                        item.Drop(player);
                     }
                 }
             }
@@ -209,8 +203,6 @@ namespace ConsoleApp2
         static void Main(string[] args)
         {
             Leaderboard leaderboard = new Leaderboard();
-
-            Console.Write(leaderboard.Display());
 
             reco.RecognizeCompleted += new EventHandler<System.Speech.Recognition.RecognizeCompletedEventArgs>(restartRecognition);
             reco.SpeechRecognized += new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(handleRecognition);
@@ -287,6 +279,7 @@ namespace ConsoleApp2
                     Console.WriteLine("Please keep your name to 15 characters or less.");
                 }
             } while (player.name == null || player.name.Contains(",") || player.name.Contains("`") || player.name == "" || player.name.Length > 15);
+
 
             player.currentRoom.enter();
 

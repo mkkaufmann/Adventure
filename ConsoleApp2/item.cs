@@ -14,9 +14,28 @@ public class item
         value = valueParam;
         aliases = aliasesParam;
 	}
+    public virtual void PickUp(player player)
+    {
+        player.inventory.Add(this);
+        player.currentRoom.items.Remove(this);
+        Console.WriteLine("");
+        typer typer = new typer("You picked up: " + this.name + ".");
+        typer.start();
+    }
     public virtual void activate(player player)
     {
+        Console.WriteLine("");
         player.inventory.Remove(this);
-        Console.WriteLine("You used: {0}.",name);
+        player.points += this.value;
+        typer typer = new typer("You used: "+this.name+".");
+        typer.start();
+    }
+    public virtual void Drop(player player)
+    {
+        Console.WriteLine("");
+        player.inventory.Remove(this);
+        player.currentRoom.items.Add(this);
+        typer typer = new typer("You dropped: " + this.name + ".");
+        typer.start();
     }
 }

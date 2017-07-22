@@ -10,7 +10,6 @@ public class Leaderboard
 	public Leaderboard(string pathParam = "leaderboard.txt")
 	{
         path = pathParam;
-        //writer = new StreamWriter(path);
         
     }
     public string Read()
@@ -29,6 +28,7 @@ public class Leaderboard
         {
             Console.WriteLine(e.Message);
         }
+        reader.Close();
         return returnVal;
     }
     private List<string[]> FormatAsList()
@@ -46,14 +46,40 @@ public class Leaderboard
         return lines;
     }
     public void AddScore(player player)
-        //very narrow function for adding scores to the leaderboard
     {
+        //very narrow function for adding scores to the leaderboard
         List<string[]> lines = FormatAsList();
         List<int> scores = new List<int>();
+
         foreach (string[] line in lines)
         {
             scores.Add(int.Parse(line[1]));
         }
+        foreach(int score in scores)
+        {
+            if(player.points > score)
+            {
+                lines.Insert(scores.IndexOf(score), new string[]{ player.name,player.points.ToString()});
+                lines.RemoveAt(lines.Count-1);
+                break;
+            }
+        }
+        this.WriteToFile(lines);
+    }
+    public void WriteToFile(List<string[]> lines)
+    {
+        writer = new StreamWriter(path,false);
+        foreach (string[] line in lines)
+        {
+            string formattedLine = "";
+            for (int i = 0; i < line.Length - 1; i++)
+            {
+                formattedLine += line[i] + ",";
+            }
+            formattedLine += line[line.Length - 1];
+            writer.WriteLine(formattedLine);
+        }
+        writer.Close();
     }
     public string Display()
     {
