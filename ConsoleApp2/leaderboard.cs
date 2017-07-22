@@ -31,7 +31,7 @@ public class Leaderboard
         }
         return returnVal;
     }
-    private List<string[]> F\ormatAsList()
+    private List<string[]> FormatAsList()
     {
         string unformatted = this.Read();
         List<string[]> lines = new List<string[]>();
@@ -46,27 +46,21 @@ public class Leaderboard
         return lines;
     }
     public void AddScore(player player)
-        //very 
+        //very narrow function for adding scores to the leaderboard
     {
-        List<string[]> lines = F\ormatAsList();
+        List<string[]> lines = FormatAsList();
+        List<int> scores = new List<int>();
         foreach (string[] line in lines)
         {
-            lines
+            scores.Add(int.Parse(line[1]));
         }
     }
     public string Display()
     {
         string returnVal = "";
         string unformatted = this.Read();
-        List<string[]> lines = F\ormatAsList();
+        List<string[]> lines = FormatAsList();
 
-        foreach (string line in unformatted.Split('`'))
-        {
-            if (line != "")
-            {
-                lines.Add(line.Split(','));
-            }
-        }
         List<int> longestLengths = new List<int>();
         if (lines.Count > 0)
         {
