@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\ConsoleApp4\ConsoleApp4\potato.cs">
+      <Link>potato.cs</Link>
+    </Compile>
     <Compile Include="battle.cs" />
     <Compile Include="enemy.cs" />
     <Compile Include="help.cs" />

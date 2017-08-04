@@ -16,7 +16,6 @@
  * permanent solution to use while empty or grab while empty (check)
  * fix pascal vs camel casing
 */
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -209,7 +208,7 @@ namespace ConsoleApp2
             reco.SpeechRecognized += new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(handleRecognition);
 
             wall wall = new wall();
-            room room1 = new room("Welcome to room 1. There is some help you can pick up for later. Try 'grab help submit.'");
+            /*room room1 = new room("Welcome to room 1. There is some help you can pick up for later. Try 'grab help submit.'");
             room room2 = new room("Welcome to room 2.");
             room room3 = new room("Welcome to room 3.");
             room room4 = new room("Welcome to room 4.");
@@ -246,8 +245,58 @@ namespace ConsoleApp2
             room5.north = wall;
 
             help help = new help();
-            room1.items.Add(help);
+            room1.items.Add(help);*/
 
+            //player.currentRoom = room1;
+
+            room room1 = new room("You wake up in a room with concrete walls and an odd stench in the air. There is a compass design on the floor that tells you that the sole door ahead is north.");
+            room room2 = new room("You step through the door and hear a loud creak. When you look around, you see a potato on a table and doors to the east and west.");
+            room room3 = new room("Welcome to room 3.");
+            room room4 = new room("Welcome to room 4.");
+            room room5 = new room("Welcome to room 5.");
+            room room6 = new room("Welcome to room 6.");
+            room room7 = new room("Welcome to room 7.");
+            room room8 = new room("Welcome to room 8.");
+            room room9 = new room("Welcome to room 9.");
+            room room10 = new room("Welcome to room 9.");
+            room room11 = new room("Welcome to room 9.");
+
+            room1.attach("north", room2);
+            room2.attach("east", room3);
+            room2.attach("west", room4);
+            room3.attach("north", room5);
+            room4.attach("west", room6);
+            room6.attach("north", room7);
+            room7.attach("west", room8);
+            room7.attach("north", room9);
+            room9.attach("east", room10);
+            room10.attach("east", room11);
+
+            room1.west = wall;
+            room1.south = wall;
+            room1.east = wall;
+            room2.north = wall;
+            room4.north = wall;
+            room4.south = wall;
+            room6.south = wall;
+            room6.west = wall;
+            room7.east = wall;
+            room8.north = wall;
+            room8.south = wall;
+            room8.west = wall;
+            room9.north = wall;
+            room9.west = wall;
+            room10.north = wall;
+            room10.south = wall;
+            room11.north = wall;
+            room11.south = wall;
+            room11.east = wall;
+            room3.south = wall;
+            room3.east = wall;
+            room5.east = wall;
+            room5.north = wall;
+            room5.west = wall;
+            room2.items.Add(new potato());
             player.currentRoom = room1;
 
             reco.SetInputToDefaultAudioDevice();
@@ -272,6 +321,7 @@ namespace ConsoleApp2
                 if (player.name == null || player.name == "")
                 {
                     Console.WriteLine("Please write a name.");
+
                 } else if (player.name.Contains(",") || player.name.Contains("`"))
                 {
                     Console.WriteLine("The characters '`' and ',' are reserved. Please try a different name.");
@@ -283,7 +333,6 @@ namespace ConsoleApp2
 
 
             player.currentRoom.enter(player);
-
             reco.RecognizeAsync();
 
             while (Console.ReadKey().Key != ConsoleKey.Enter)
