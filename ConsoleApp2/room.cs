@@ -16,7 +16,7 @@ public class room
         enterMessage = Environment.NewLine + enterMessageParam;
         isNull = false;
 	}
-    public void enter(player player)
+    public virtual void enter(player player)
     {
         typer typer = new typer(enterMessage);
         typer.start();

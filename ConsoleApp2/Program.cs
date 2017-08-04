@@ -14,6 +14,7 @@
  * add text typing out (check)
  * add saving support (low priority)
  * permanent solution to use while empty or grab while empty (check)
+ * fix pascal vs camel casing
 */
 
 using System;
@@ -108,7 +109,7 @@ namespace ConsoleApp2
                     commandPart = splitCommand[2];
                     if (submit.checkForEquiv(commandPart))
                     {
-                        player.currentRoom.north.enter();
+                        player.currentRoom.north.enter(player);
                         if (!(player.currentRoom.north.isNull))
                         {
                             player.currentRoom = player.currentRoom.north;
@@ -120,7 +121,7 @@ namespace ConsoleApp2
                     commandPart = splitCommand[2];
                     if (submit.checkForEquiv(commandPart))
                     {
-                        player.currentRoom.south.enter();
+                        player.currentRoom.south.enter(player);
                         if (!(player.currentRoom.south.isNull))
                         {
                             player.currentRoom = player.currentRoom.south;
@@ -132,7 +133,7 @@ namespace ConsoleApp2
                     commandPart = splitCommand[2];
                     if (submit.checkForEquiv(commandPart))
                     {
-                        player.currentRoom.east.enter();
+                        player.currentRoom.east.enter(player);
                         if (!(player.currentRoom.east.isNull))
                         {
                             player.currentRoom = player.currentRoom.east;
@@ -144,7 +145,7 @@ namespace ConsoleApp2
                     commandPart = splitCommand[2];
                     if (submit.checkForEquiv(commandPart))
                     {
-                        player.currentRoom.west.enter();
+                        player.currentRoom.west.enter(player);
                         if (!(player.currentRoom.west.isNull))
                         {
                             player.currentRoom = player.currentRoom.west;
@@ -281,7 +282,7 @@ namespace ConsoleApp2
             } while (player.name == null || player.name.Contains(",") || player.name.Contains("`") || player.name == "" || player.name.Length > 15);
 
 
-            player.currentRoom.enter();
+            player.currentRoom.enter(player);
 
             reco.RecognizeAsync();
 
