@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 public class enemy
 {
     public int health;
@@ -19,8 +19,26 @@ public class enemy
             weapon = weaponParam;
         }
 	}
-    public void attack(player player)
+    public virtual void attack(player player)
     {
-        player.health -= weapon.damage;
+        List<String> chances = new List<string>();
+        for(int i = 0; i < player.equippedWeapon.damage; i++)
+        {
+            chances.Add("player");
+        }
+        for (int i = 0; i < weapon.damage; i++)
+        {
+            chances.Add("enemy");
+        }
+        Random random = new Random();
+        int num = random.Next(chances.Count - 1);
+        if (chances[num] == "enemy")
+        {
+
+        }
+        else
+        {
+
+        }
     }
 }

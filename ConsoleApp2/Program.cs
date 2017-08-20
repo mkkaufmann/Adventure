@@ -2,6 +2,7 @@
  * Michael Kaufmann
  * Started 7/2/17
  * Text-based Adventure Game with speech recognition
+ * Works on Windows 7+
  * 
  * TODO: add cancel (check)
  * correct processing (check)
@@ -17,32 +18,32 @@
  * fix pascal vs camel casing
 */
 using System;
-using System.Collections.Generic;
+using System.Collections.Generic;//for lists
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Speech;
+using System.Speech;//for speech recognition
 
 namespace ConsoleApp2
 {
     class Program
     {
-        static System.Speech.Recognition.SpeechRecognitionEngine reco = new System.Speech.Recognition.SpeechRecognitionEngine();
-        static void setSpeechReco(string[] words)
+        static System.Speech.Recognition.SpeechRecognitionEngine reco = new System.Speech.Recognition.SpeechRecognitionEngine();//This is the speech recognition engine
+        static void SetSpeechReco(string[] words)//used to change the words that are recognized by the engine
         {
-            reco.UnloadAllGrammars();
+            reco.UnloadAllGrammars();//make sure any previously loaded grammars are no longer in effect
 
-            System.Speech.Recognition.SrgsGrammar.SrgsDocument gram = new System.Speech.Recognition.SrgsGrammar.SrgsDocument();
-            System.Speech.Recognition.SrgsGrammar.SrgsRule rule = new System.Speech.Recognition.SrgsGrammar.SrgsRule("CurrentCommands");
-            System.Speech.Recognition.SrgsGrammar.SrgsOneOf list = new System.Speech.Recognition.SrgsGrammar.SrgsOneOf(words);
+            System.Speech.Recognition.SrgsGrammar.SrgsDocument gram = new System.Speech.Recognition.SrgsGrammar.SrgsDocument();//create a new grammar
+            System.Speech.Recognition.SrgsGrammar.SrgsRule rule = new System.Speech.Recognition.SrgsGrammar.SrgsRule("CurrentCommands");//create a new rule
+            System.Speech.Recognition.SrgsGrammar.SrgsOneOf list = new System.Speech.Recognition.SrgsGrammar.SrgsOneOf(words);//create a list of words to listen for
 
-            rule.Add(list);
-            gram.Rules.Add(rule);
-            gram.Root = rule;
+            rule.Add(list);//add the list to the rule
+            gram.Rules.Add(rule);//add the rule to the grammar
+            gram.Root = rule;//set the rule to the root rule
 
-            reco.LoadGrammar(new System.Speech.Recognition.Grammar(gram));
+            reco.LoadGrammar(new System.Speech.Recognition.Grammar(gram));//load the grammar into the engine
         }
-
+        //list of words that are in the game
         static word submit = new word("submit",new string[] {"enter","return","done"});
         static word cancel = new word("cancel");
         static word north = new word("north", nextWordsParam:new word[] { submit, cancel });
@@ -54,29 +55,32 @@ namespace ConsoleApp2
         static word drop = new word("drop", new string[] { "leave", "dispel", "discard" });
         static word grab = new word("grab", new string[] { "pick up", "seize", "snatch","get","acquire","obtain","collect","attain"});
 
-        
-        
-        static string currentCommand = "";
+        //initialize leaderboard
+        static Leaderboard leaderboard = new Leaderboard();
 
-        static player player = new player();
+        static bool gameIsRunning = true;
 
-        static List<string> defaultCommands = new List<string>();
+        static string currentCommand = "";//used to keep track of the current command being made
 
-        static void setDefaultCommands()
+        static player player = new player();//initialize the player
+
+        static List<string> defaultCommands = new List<string>();//variable that stores the default commands
+
+        static void setDefaultCommands()//Used to set up the commands available to be used as the first words
         {
-            defaultCommands.Clear();
-            foreach(string word in go.wordsReturn())
+            defaultCommands.Clear();//delete all current default commands
+            foreach(string word in go.wordsReturn())//add all variants of go
             {
                 defaultCommands.Add(word);
             }
-            if(player.currentRoom.items.Count() > 0)
+            if(player.currentRoom.items.Count() > 0)//if there are items in the room, add all variants of grab
             {
                 foreach(string word in grab.wordsReturn())
                 {
                     defaultCommands.Add(word);
                 }
             }
-            if (player.inventory.Count() > 0)
+            if (player.inventory.Count() > 0)//if there are items in the player's inventory, add all variants of activate and drop
             {
                 foreach(string word in activate.wordsReturn())
                 {
@@ -88,18 +92,18 @@ namespace ConsoleApp2
                 }
             }
         }
-        static void processCommand()
+        static void processCommand()//processes the current command
         {
-            string[] splitCommand = currentCommand.Split(",".ToCharArray());
+            string[] splitCommand = currentCommand.Split(",".ToCharArray());//split the command into separate words
 
-            if (splitCommand.Contains("cancel"))
+            if (splitCommand.Contains("cancel"))//reset immediately if the command contains cancel
             {
-                setSpeechReco(defaultCommands.ToArray());
-                currentCommand = "";
-                Console.WriteLine("");
-                return;
+                SetSpeechReco(defaultCommands.ToArray());//resets recognition to default
+                currentCommand = "";//resets the current command to store the next command
+                Console.WriteLine("");//move the console to the next line
+                return;//exit the function
             }
-            string commandPart = splitCommand[0];
+            string commandPart = splitCommand[0];//store the first part of the command
             if (go.checkForEquiv(commandPart))
             {
                 commandPart = splitCommand[1];
@@ -109,7 +113,7 @@ namespace ConsoleApp2
                     if (submit.checkForEquiv(commandPart))
                     {
                         player.currentRoom.north.enter(player);
-                        if (!(player.currentRoom.north.isNull))
+                        if (!(player.currentRoom.north.isNull))//if the room to the north isn't a wall, set the player's current room to it
                         {
                             player.currentRoom = player.currentRoom.north;
                         }
@@ -190,11 +194,37 @@ namespace ConsoleApp2
                     }
                 }
             }
+            if(player.health <= 0)
+            {
+                endGame(false);
+                return;
+            }
+            //reset commands
             setDefaultCommands();
-            setSpeechReco(defaultCommands.ToArray());
+            SetSpeechReco(defaultCommands.ToArray());
             currentCommand = "";
         }
-        static void type(string text)
+        static void endGame(bool gameWon)
+        {
+            if (gameWon)
+            {
+                type("Thank you for playing this game. For completing the game, you have been awarded a bonus 1000 points.");
+                player.points += 1000;
+                leaderboard.AddScore(player);
+                Console.WriteLine(leaderboard.Display());
+            }
+            else
+            {
+                type("GAME OVER. It's like you didn't even try.");
+                leaderboard.AddScore(player);
+                Console.WriteLine(leaderboard.Display());
+            }
+            reco.RecognizeCompleted -= new EventHandler<System.Speech.Recognition.RecognizeCompletedEventArgs>(restartRecognition);
+            reco.SpeechRecognized -= new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(handleRecognition);
+            Console.ReadLine();
+            gameIsRunning = false;
+        }
+        static void type(string text)//a way to type out text while waiting for it to finish before continuing
         {
             typer typer = new typer(text);
             Task currentTask = Task.Factory.StartNew(() => { typer.start(); });
@@ -202,12 +232,18 @@ namespace ConsoleApp2
         }
         static void Main(string[] args)
         {
-            Leaderboard leaderboard = new Leaderboard();
+            
 
+            //set up event handlers for recognition
             reco.RecognizeCompleted += new EventHandler<System.Speech.Recognition.RecognizeCompletedEventArgs>(restartRecognition);
             reco.SpeechRecognized += new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(handleRecognition);
 
+            //set up the default wall
             wall wall = new wall();
+
+
+            //OLD MAP
+
             /*room room1 = new room("Welcome to room 1. There is some help you can pick up for later. Try 'grab help submit.'");
             room room2 = new room("Welcome to room 2.");
             room room3 = new room("Welcome to room 3.");
@@ -302,7 +338,7 @@ namespace ConsoleApp2
             reco.SetInputToDefaultAudioDevice();
 
             setDefaultCommands();
-            setSpeechReco(defaultCommands.ToArray());
+            SetSpeechReco(defaultCommands.ToArray());
 
             /*type("Thanks for playing my game!");
             type("To play, you need a microphone hooked up to your computer and set as the default input device.");
@@ -335,7 +371,7 @@ namespace ConsoleApp2
             player.currentRoom.enter(player);
             reco.RecognizeAsync();
 
-            while (Console.ReadKey().Key != ConsoleKey.Enter)
+            while (gameIsRunning)
             {}
 
         }
@@ -351,49 +387,49 @@ namespace ConsoleApp2
 
             if (go.checkForEquiv(e.Result.Text))
             {
-                setSpeechReco(go.nextWordsString());
+                SetSpeechReco(go.nextWordsString());
             }
             else if (north.checkForEquiv(e.Result.Text))
             {
-                setSpeechReco(north.nextWordsString());
+                SetSpeechReco(north.nextWordsString());
             }
             else if (south.checkForEquiv(e.Result.Text))
             {
-                setSpeechReco(south.nextWordsString());
+                SetSpeechReco(south.nextWordsString());
             }
             else if (east.checkForEquiv(e.Result.Text))
             {
-                setSpeechReco(east.nextWordsString());
+                SetSpeechReco(east.nextWordsString());
             }
             else if (west.checkForEquiv(e.Result.Text))
             {
-                setSpeechReco(west.nextWordsString());
+                SetSpeechReco(west.nextWordsString());
             }
             else if (activate.checkForEquiv(e.Result.Text))
             {
-                setSpeechReco(player.getItemNames());
+                SetSpeechReco(player.getItemNames());
             }
             else if (grab.checkForEquiv(e.Result.Text))
             {
-                setSpeechReco(player.currentRoom.getItemNames());
+                SetSpeechReco(player.currentRoom.getItemNames());
             }
             else if (drop.checkForEquiv(e.Result.Text))
             {
-                setSpeechReco(player.getItemNames());
+                SetSpeechReco(player.getItemNames());
             }
             else if (player.checkIfItem(e.Result.Text))
             {
                 string[] wordsForReco = new string[submit.wordsReturn().Length + cancel.wordsReturn().Length];
                 submit.wordsReturn().CopyTo(wordsForReco, 0);
                 cancel.wordsReturn().CopyTo(wordsForReco, submit.wordsReturn().Length);
-                setSpeechReco(wordsForReco);
+                SetSpeechReco(wordsForReco);
             }
             else if (player.currentRoom.checkIfItem(e.Result.Text))
             {
                 string[] wordsForReco = new string[submit.wordsReturn().Length + cancel.wordsReturn().Length];
                 submit.wordsReturn().CopyTo(wordsForReco, 0);
                 cancel.wordsReturn().CopyTo(wordsForReco, submit.wordsReturn().Length);
-                setSpeechReco(wordsForReco);
+                SetSpeechReco(wordsForReco);
             }
             else if (submit.checkForEquiv(e.Result.Text)||cancel.checkForEquiv(e.Result.Text))
             {

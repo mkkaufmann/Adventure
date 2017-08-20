@@ -7,7 +7,7 @@ public class player
     public int points = 0;
     public List<item> inventory = new List<item>();
     public int maxInventoryWeight;
-    public int health = 100;
+    public int health = 50;
     public int maxHealth = 100;
     public weapon equippedWeapon;
     public room currentRoom;
